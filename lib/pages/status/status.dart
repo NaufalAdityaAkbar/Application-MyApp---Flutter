@@ -7,19 +7,19 @@ class StatusPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Status',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 187, 133, 52)),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Color.fromARGB(218, 254, 250, 224),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.camera_alt, color: Colors.orange),
+            icon: Icon(Icons.camera_alt, color: Color.fromARGB(255, 187, 133, 52)),
             onPressed: () {
               // Aksi untuk kamera
             },
           ),
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.orange),
+            icon: Icon(Icons.more_vert, color: Color.fromARGB(255, 187, 133, 52)),
             onPressed: () {
               // Aksi untuk menu lainnya
             },
@@ -37,7 +37,7 @@ class StatusPage extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: Colors.grey[800],
+                      backgroundColor: Color.fromARGB(255, 60, 61, 55),
                       child: Icon(Icons.person, color: Colors.orange, size: 40),
                     ),
                     Positioned(
@@ -46,11 +46,11 @@ class StatusPage extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          color: Colors.orange,
+                          color: Color.fromARGB(255, 60, 61, 55),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.black, width: 2),
+                          border: Border.all(color: Colors.orange, width: 2),
                         ),
-                        child: Icon(Icons.add, size: 18, color: Colors.black),
+                        child: Icon(Icons.add, size: 18, color: Colors.orange),
                       ),
                     )
                   ],
@@ -64,7 +64,7 @@ class StatusPage extends StatelessWidget {
                         'Status Saya',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Color.fromARGB(255, 187, 133, 52),
                           fontSize: 16,
                         ),
                       ),
@@ -80,7 +80,7 @@ class StatusPage extends StatelessWidget {
           ),
           
           Container(
-            color: Colors.grey[900],
+            color: Color.fromARGB(80, 215, 215, 205),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
               'Pembaruan Terbaru',
@@ -100,13 +100,13 @@ class StatusPage extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: 28,
-                backgroundColor: Colors.grey[800],
+              backgroundColor: Color.fromARGB(255, 60, 61, 55),
                 child: Icon(Icons.person, color: Colors.orange),
               ),
             ),
             title: Text(
               'User 1',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 187, 133, 52)),
             ),
             subtitle: Text(
               'Hari ini, 10:00 AM',
@@ -124,13 +124,13 @@ class StatusPage extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: 28,
-                backgroundColor: Colors.grey[800],
+                backgroundColor: Color.fromARGB(255, 60, 61, 55),
                 child: Icon(Icons.person, color: Colors.orange),
               ),
             ),
             title: Text(
               'User 2',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 187, 133, 52)),
             ),
             subtitle: Text(
               'Hari ini, 8:30 AM',
@@ -151,8 +151,8 @@ class StatusPage extends StatelessWidget {
             onPressed: () {
               // Aksi untuk edit status
             },
-            backgroundColor: Colors.grey[900],
-            child: Icon(Icons.edit, color: Colors.orange),
+            backgroundColor: Color.fromARGB(255, 187, 133, 52),
+            child: Icon(Icons.edit, color: Color.fromARGB(255, 60, 61, 55)),
           ),
           SizedBox(height: 8),
           FloatingActionButton(
@@ -160,12 +160,12 @@ class StatusPage extends StatelessWidget {
             onPressed: () {
               // Aksi untuk menambahkan status baru
             },
-            backgroundColor: Colors.orange,
-            child: Icon(Icons.camera_alt, color: Colors.black),
+            backgroundColor: Color.fromARGB(255, 187, 133, 52),
+            child: Icon(Icons.camera_alt, color: Color.fromARGB(255, 60, 61, 55)),
           ),
         ],
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Color.fromARGB(218, 254, 250, 224),
     );
   }
 }

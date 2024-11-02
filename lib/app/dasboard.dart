@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:myapp/pages/chat/chat_detail.dart';
 import '../pages/status/status.dart';
-import '../pages/group/comunity.dart';
+import '../pages/group/community.dart';
 import '../pages/call/call.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -41,10 +41,10 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[
-      Icon(Icons.chat, size: 30, color: Colors.white),
-      Icon(Icons.message, size: 30, color: Colors.white),
-      Icon(Icons.people, size: 30, color: Colors.white),
-      Icon(Icons.call, size: 30, color: Colors.white),
+      Icon(Icons.chat, size: 30, color: Color.fromARGB(255, 187, 133, 52)),
+      Icon(Icons.message, size: 30, color: Color.fromARGB(255, 187, 133, 52)),
+      Icon(Icons.people, size: 30, color: Color.fromARGB(255, 187, 133, 52)),
+      Icon(Icons.call, size: 30, color: Color.fromARGB(255, 187, 133, 52)),
     ];
 
     return Scaffold(
@@ -52,9 +52,9 @@ class _DashboardPageState extends State<DashboardPage> {
       bottomNavigationBar: CurvedNavigationBar(
         index: _currentIndex,
         height: 60,
-        backgroundColor: Colors.black, // Latar belakang konten utama diganti menjadi hitam
-        color: Colors.orange, // Warna latar belakang bar diganti menjadi oranye
-        buttonBackgroundColor: Colors.orange, // Warna item yang dipilih diganti menjadi oranye
+        backgroundColor: Color.fromARGB(218, 254, 250, 224) , // Latar belakang konten utama diganti menjadi hitam
+        color: Color.fromARGB(255, 60, 61, 55), // Warna latar belakang bar diganti menjadi oranye
+        buttonBackgroundColor: Color.fromARGB(255, 60, 61, 55), // Warna item yang dipilih diganti menjadi oranye
         items: items,
         onTap: _onItemTapped,
         animationDuration: const Duration(milliseconds: 400),

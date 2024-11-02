@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/start/splash.dart';
 import '../app/login.dart';
 import 'app/register.dart';
 import 'app/dasboard.dart';
@@ -15,9 +16,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MyApp',
       theme: ThemeData(
-      primarySwatch: Colors.teal,
+        primarySwatch: Colors.teal,
       ),
-      home: LoginScreen(),
+      home: SplashScreen(),
       routes: {
         '/register': (context) => RegisterScreen(),
         '/dashboard': (context) => DashboardPage(phoneNumber: phoneNumber),

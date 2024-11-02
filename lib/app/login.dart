@@ -27,7 +27,8 @@ class LoginScreen extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => DashboardPage(phoneNumber: phoneNumber), // Pass phone number here
+            builder: (context) => DashboardPage(
+                phoneNumber: phoneNumber), // Pass phone number here
           ),
         );
       } else {
@@ -36,20 +37,22 @@ class LoginScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white, // Set a clean white background
+      backgroundColor:
+          Color.fromARGB(218, 254, 250, 224), // Set a clean white background
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0), // Add padding to the sides
+            padding: const EdgeInsets.symmetric(
+                horizontal: 24.0), // Add padding to the sides
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Welcome Back',
+                  'Hallo!',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: const Color.fromARGB(206, 59, 59, 58),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -64,11 +67,12 @@ class LoginScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color.fromARGB(234, 60, 61, 55),
                     borderRadius: BorderRadius.circular(16.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: const Color.fromARGB(255, 60, 61, 55)
+                            .withOpacity(0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -80,31 +84,43 @@ class LoginScreen extends StatelessWidget {
                         controller: phoneController,
                         decoration: InputDecoration(
                           labelText: 'Phone Number',
+                          labelStyle: TextStyle(color:  Color.fromARGB(255, 187, 133, 52)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
+                            borderSide: BorderSide(
+                                color:
+                                    Color.fromARGB(255, 187, 133, 52)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: Colors.orange),
+                            borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 254, 250, 224)),
                           ),
                         ),
                         keyboardType: TextInputType.phone,
+                        style: TextStyle(
+                            color: Color.fromARGB(218, 254, 250, 224)),
                       ),
                       const SizedBox(height: 20), // Add spacing between fields
-                      ElevatedButton(
-                        onPressed: login,
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
+                      SizedBox(
+                        width: double.infinity, // Membuat tombol lebar penuh
+                        child: ElevatedButton(
+                          onPressed: login,
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            backgroundColor:
+                                const Color.fromARGB(255, 187, 133, 52),
+                            elevation: 5,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          backgroundColor: Colors.orange,
-                          elevation: 5,
-                        ),
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(fontSize: 16),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Color.fromARGB(218, 254, 250, 224)),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10), // Add some spacing
@@ -113,10 +129,14 @@ class LoginScreen extends StatelessWidget {
                           // Navigate to the registration screen
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => const RegisterScreen()),
                           );
                         },
-                        child: const Text('Dont have an account? Register here.'),
+                        child: const Text(
+                          'Dont have an account? Register here.',
+                          style: TextStyle(color: Colors.blue),
+                        ),
                       ),
                     ],
                   ),

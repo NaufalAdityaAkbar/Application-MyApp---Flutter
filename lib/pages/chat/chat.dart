@@ -22,77 +22,95 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _controller = TextEditingController();
   List<dynamic> messages = [];
 
-@override
-void initState() {
+  @override
+  void initState() {
     super.initState();
     fetchMessages();
     Timer.periodic(Duration(seconds: 2), (timer) {
       if (mounted) fetchMessages();
     });
-}
+  }
 
-  // Fungsi untuk mengambil pesan dari backend
-Future<void> fetchMessages() async {
+  Future<void> fetchMessages() async {
     try {
-      print('Fetching messages for: ${widget.loggedInPhoneNumber} and ${widget.contactPhoneNumber}');
       final response = await http.get(
-  Uri.parse('http://localhost:3000/api/messages/${widget.loggedInPhoneNumber}/${widget.contactPhoneNumber}'),
-  );
-
+        Uri.parse(
+            'http://localhost:3000/api/messages/${widget.loggedInPhoneNumber}/${widget.contactPhoneNumber}'),
+      );
 
       if (response.statusCode == 200) {
         setState(() {
           messages = json.decode(response.body)['messages'];
         });
-        print('Messages fetched successfully: ${messages.length} messages received.');
+
+        if (messages.isNotEmpty) {
+          await markMessagesAsRead();
+        }
       } else {
         print("Error fetching messages: ${response.statusCode}");
       }
     } catch (e) {
       print("Exception fetching messages: $e");
     }
-}
+  }
 
-Future<void> sendMessage(String message) async {
+  Future<void> markMessagesAsRead() async {
+    try {
+      final response = await http.put(
+        Uri.parse(
+            'http://localhost:3000/api/messages/read/${widget.contactPhoneNumber}/${widget.loggedInPhoneNumber}'),
+      );
+
+      if (response.statusCode == 200) {
+        print('Messages marked as read successfully.');
+      } else {
+        print("Error marking messages as read: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Exception marking messages as read: $e");
+    }
+  }
+
+  Future<void> sendMessage(String message) async {
     if (message.trim().isEmpty) return;
-
-    print('Sending message: $message from ${widget.loggedInPhoneNumber} to ${widget.contactPhoneNumber}');
 
     setState(() {
       messages.add({
         'message': message,
         'sender_phone': widget.loggedInPhoneNumber,
+        'created_at': DateTime.now().toString(),
+        'unread_count': 0,
       });
     });
     _controller.clear();
 
     try {
-        final response = await http.post(
-            Uri.parse('http://localhost:3000/api/send'), // Ganti dengan IP kamu
-            body: jsonEncode({
-                'sender_phone': widget.loggedInPhoneNumber,
-                'receiver_phone': widget.contactPhoneNumber,
-                'message': message,
-            }),
-            headers: {"Content-Type": "application/json"},
-        );
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/api/send'),
+        body: jsonEncode({
+          'sender_phone': widget.loggedInPhoneNumber,
+          'receiver_phone': widget.contactPhoneNumber,
+          'message': message,
+        }),
+        headers: {"Content-Type": "application/json"},
+      );
 
-        if (response.statusCode == 201) {
-            print('Message sent successfully.');
-        } else {
-            print("Error sending message: ${response.statusCode} - ${response.body}");
-        }
+      if (response.statusCode == 201) {
+        print('Message sent successfully.');
+      } else {
+        print("Error sending message: ${response.statusCode} - ${response.body}");
+      }
     } catch (e) {
-        print("Exception sending message: $e");
+      print("Exception sending message: $e");
     }
-}
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contactName),
-        backgroundColor: Colors.black,
+        backgroundColor: Color.fromARGB(218, 254, 250, 224),
       ),
       body: Column(
         children: [
@@ -101,24 +119,52 @@ Future<void> sendMessage(String message) async {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 var message = messages[index];
-                return Align(
-                  alignment:
-                      message['sender_phone'] == widget.loggedInPhoneNumber
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.all(8.0),
-                    padding: EdgeInsets.all(10.0),
-                    decoration: BoxDecoration(
-                      color:
-                          message['sender_phone'] == widget.loggedInPhoneNumber
-                              ? Colors.blue
-                              : Colors.grey,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      message['message'],
-                      style: TextStyle(color: Colors.white),
+                bool isSender = message['sender_phone'] == widget.loggedInPhoneNumber;
+                bool isRead = message['unread_count'] == 0;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Align(
+                    alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isSender ? Color.fromARGB(160, 60, 61, 55) : Color.fromARGB(160, 60, 61, 55),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                          bottomLeft: isSender ? Radius.circular(15) : Radius.zero,
+                          bottomRight: isSender ? Radius.zero : Radius.circular(15),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message['message'],
+                            style: TextStyle(
+                              color: isSender ? Colors.white : Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                message['created_at'], // Show message timestamp
+                                style: TextStyle(fontSize: 12, color: Colors.white),
+                              ),
+                              SizedBox(width: 5),
+                              Icon(
+                                Icons.check_circle,
+                                color: isRead ? Colors.orange : Color.fromARGB(217, 187, 133, 52), // Gray for unread, orange for read
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -132,11 +178,23 @@ Future<void> sendMessage(String message) async {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: "Type a message"),
+                    decoration: InputDecoration(
+                      hintText: "Ketik pesan...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                    onSubmitted: (value) {
+                      sendMessage(value);
+                    },
                   ),
                 ),
+                SizedBox(width: 8),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
+                  icon: Icon(Icons.send, color: Color.fromARGB(255, 187, 133, 52)),
                   onPressed: () {
                     if (_controller.text.isNotEmpty) {
                       sendMessage(_controller.text);
@@ -148,7 +206,7 @@ Future<void> sendMessage(String message) async {
           ),
         ],
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Color.fromARGB(218, 254, 250, 224),
     );
   }
 }
