@@ -27,7 +27,7 @@ class _DashboardPageState extends State<DashboardPage> {
     _pages.addAll([
       ChatPage(loggedInPhoneNumber: widget.phoneNumber), // Perbaikan di sini
       StatusPage(),
-      CommunityPage(),
+      CommunityPage(loggedInPhoneNumber: widget.phoneNumber),
       CallPage(),
     ]);
   }

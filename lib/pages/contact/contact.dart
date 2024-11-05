@@ -24,7 +24,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
   Future<void> fetchContacts() async {
     final response = await http.get(
-      Uri.parse('http://localhost:3000/api/users'),
+      Uri.parse('http://192.168.2.13:3000/api/users'),
       headers: {"Content-Type": "application/json"},
     );
 
@@ -56,9 +56,14 @@ class _ContactsPageState extends State<ContactsPage> {
                   itemCount: contacts.length,
                   itemBuilder: (context, index) {
                     var contact = contacts[index];
+
+                    // Membuat URL foto dengan format yang benar
+                    final String photoPath = contact['photo']?.replaceAll('\\', '/') ?? 'default.jpg';
+                    final String imageUrl = 'http://192.168.2.13:3000/$photoPath';
+
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundImage: NetworkImage(contact['photo'] ?? 'https://via.placeholder.com/150'),
+                        backgroundImage: NetworkImage(imageUrl),
                       ),
                       title: Text(contact['name'] ?? 'No Name'),
                       trailing: Row(

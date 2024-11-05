@@ -1,7 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'profil.dart';
 
-class SettingMenu extends StatelessWidget {
+class SettingMenu extends StatefulWidget {
+  final String loggedInPhoneNumber;
+
+  SettingMenu({required this.loggedInPhoneNumber});
+
+  @override
+  _SettingMenuState createState() => _SettingMenuState();
+}
+
+class _SettingMenuState extends State<SettingMenu> {
+  String name = 'Loading...';
+  String bio = 'Loading...';
+  String photo = 'default.jpg'; // Use a default photo URL
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData();
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.2.13:3000/api/users/profile/${widget.loggedInPhoneNumber}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          name = data['name'] ?? 'No Name';
+          bio = data['bio'] ?? 'No Bio';
+          photo = data['photo'] ?? 'default.jpg'; // Ensure to use default if not available
+        });
+      } else {
+        throw Exception('Failed to load profile');
+      }
+    } catch (e) {
+      print('Error fetching profile: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,11 +77,14 @@ class SettingMenu extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.orange.shade200,
-                      child: Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.orange.shade800,
-                      ),
+                      backgroundImage: NetworkImage('http://192.168.2.13:3000/$photo'), // Fetch from API
+                      child: photo.isEmpty
+                          ? Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.orange.shade800,
+                            )
+                          : null,
                     ),
                     SizedBox(width: 16),
                     Expanded(
@@ -47,7 +92,7 @@ class SettingMenu extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Your Name',
+                            name,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -55,7 +100,7 @@ class SettingMenu extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'Status...',
+                            bio,
                             style: TextStyle(
                               color: Colors.grey,
                             ),
@@ -85,10 +130,10 @@ class SettingMenu extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'BeeChat from Meta',
+                    'MyApp from Opangsky',
                     style: TextStyle(
                       color: Colors.grey,
-                      fontSize: 16,
+                      fontSize: 16
                     ),
                   ),
                   SizedBox(height: 4),

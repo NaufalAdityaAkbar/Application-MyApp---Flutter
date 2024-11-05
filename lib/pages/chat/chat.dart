@@ -20,6 +20,8 @@ class ChatDetailPage extends StatefulWidget {
 
 class _ChatDetailPageState extends State<ChatDetailPage> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController =
+      ScrollController(); // Tambahkan ScrollController
   List<dynamic> messages = [];
 
   @override
@@ -31,34 +33,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     });
   }
 
-  Future<void> fetchMessages() async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-            'http://localhost:3000/api/messages/${widget.loggedInPhoneNumber}/${widget.contactPhoneNumber}'),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          messages = json.decode(response.body)['messages'];
-        });
-
-        if (messages.isNotEmpty) {
-          await markMessagesAsRead();
-        }
-      } else {
-        print("Error fetching messages: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Exception fetching messages: $e");
-    }
-  }
-
   Future<void> markMessagesAsRead() async {
     try {
       final response = await http.put(
         Uri.parse(
-            'http://localhost:3000/api/messages/read/${widget.contactPhoneNumber}/${widget.loggedInPhoneNumber}'),
+            'http://192.168.2.13:3000/api/messages/read/${widget.contactPhoneNumber}/${widget.loggedInPhoneNumber}'),
       );
 
       if (response.statusCode == 200) {
@@ -68,6 +47,30 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       }
     } catch (e) {
       print("Exception marking messages as read: $e");
+    }
+  }
+
+  Future<void> fetchMessages() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'http://192.168.2.13:3000/api/messages/${widget.loggedInPhoneNumber}/${widget.contactPhoneNumber}'),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          messages = json.decode(response.body)['messages'];
+        });
+
+        if (messages.isNotEmpty) {
+          await markMessagesAsRead();
+          _scrollToBottom(); // Scroll ke bawah saat pesan pertama kali dimuat
+        }
+      } else {
+        print("Error fetching messages: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Exception fetching messages: $e");
     }
   }
 
@@ -84,9 +87,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     });
     _controller.clear();
 
+    _scrollToBottom(); // Scroll ke bawah setelah mengirim pesan
+
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3000/api/send'),
+        Uri.parse('http://192.168.2.13:3000/api/send'),
         body: jsonEncode({
           'sender_phone': widget.loggedInPhoneNumber,
           'receiver_phone': widget.contactPhoneNumber,
@@ -98,11 +103,24 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       if (response.statusCode == 201) {
         print('Message sent successfully.');
       } else {
-        print("Error sending message: ${response.statusCode} - ${response.body}");
+        print(
+            "Error sending message: ${response.statusCode} - ${response.body}");
       }
     } catch (e) {
       print("Exception sending message: $e");
     }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300), // Kecepatan scroll
+          curve: Curves.easeOut, // Efek animasi saat scroll
+        );
+      }
+    });
   }
 
   @override
@@ -116,29 +134,40 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller:
+                  _scrollController, // Pasang ScrollController ke ListView
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 var message = messages[index];
-                bool isSender = message['sender_phone'] == widget.loggedInPhoneNumber;
+                bool isSender =
+                    message['sender_phone'] == widget.loggedInPhoneNumber;
                 bool isRead = message['unread_count'] == 0;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Align(
-                    alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment:
+                        isSender ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: isSender ? Color.fromARGB(160, 60, 61, 55) : Color.fromARGB(160, 60, 61, 55),
+                        color: isSender
+                            ? Color.fromARGB(160, 60, 61, 55)
+                            : Color.fromARGB(160, 60, 61, 55),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(15),
                           topRight: Radius.circular(15),
-                          bottomLeft: isSender ? Radius.circular(15) : Radius.zero,
-                          bottomRight: isSender ? Radius.zero : Radius.circular(15),
+                          bottomLeft:
+                              isSender ? Radius.circular(15) : Radius.zero,
+                          bottomRight:
+                              isSender ? Radius.zero : Radius.circular(15),
                         ),
                       ),
                       child: Column(
-                        crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        crossAxisAlignment: isSender
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
                         children: [
                           Text(
                             message['message'],
@@ -152,13 +181,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                message['created_at'], // Show message timestamp
-                                style: TextStyle(fontSize: 12, color: Colors.white),
+                                message[
+                                    'created_at'], // Tampilkan timestamp pesan
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.white),
                               ),
                               SizedBox(width: 5),
                               Icon(
                                 Icons.check_circle,
-                                color: isRead ? Colors.orange : Color.fromARGB(217, 187, 133, 52), // Gray for unread, orange for read
+                                color: isRead
+                                    ? Colors.orange
+                                    : Color.fromARGB(217, 187, 133,
+                                        52), // Warna abu untuk belum dibaca, oranye untuk dibaca
                                 size: 16,
                               ),
                             ],
@@ -194,7 +228,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 ),
                 SizedBox(width: 8),
                 IconButton(
-                  icon: Icon(Icons.send, color: Color.fromARGB(255, 187, 133, 52)),
+                  icon: Icon(Icons.send,
+                      color: Color.fromARGB(255, 187, 133, 52)),
                   onPressed: () {
                     if (_controller.text.isNotEmpty) {
                       sendMessage(_controller.text);
