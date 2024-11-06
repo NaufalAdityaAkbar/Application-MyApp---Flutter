@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:myapp/app/login.dart';
@@ -32,7 +31,17 @@ class _ChatPageState extends State<ChatPage> {
 
   // Function to start polling
   void startPolling() {
-    _timer = Timer.periodic(Duration(seconds: 4), (Timer t) => fetchChats());
+    // Cancel any existing timer to avoid multiple instances
+    if (_timer != null && _timer!.isActive) {
+      _timer!.cancel();
+    }
+
+    // Start a periodic timer for polling every 4 seconds
+    _timer = Timer.periodic(Duration(seconds: 4), (Timer t) {
+      if (mounted) {
+        fetchChats();
+      }
+    });
   }
 
   Future<void> fetchChats() async {
@@ -45,18 +54,23 @@ class _ChatPageState extends State<ChatPage> {
       if (response.statusCode == 200) {
         final List<dynamic> chatList = json.decode(response.body);
         print(chatList); // Debugging line
-        setState(() {
-          chats = chatList;
-          isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            chats = chatList;
+            isLoading = false;
+          });
+        }
       } else {
         throw Exception('Failed to load chats');
       }
     } catch (e) {
       print('Error fetching chats: $e');
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      // Optional: handle retry mechanism here if needed
     }
   }
 
@@ -80,8 +94,7 @@ class _ChatPageState extends State<ChatPage> {
       );
 
       if (response.statusCode == 200) {
-        // Fetch chats again after deletion
-        fetchChats();
+        fetchChats(); // Fetch chats again after deletion
       } else {
         throw Exception('Failed to delete chat');
       }
@@ -109,20 +122,25 @@ class _ChatPageState extends State<ChatPage> {
               onPressed: () {
                 // Start delete animation
                 setState(() {
-                  chats[index]['isDeleting'] =
-                      true; // Set state to indicate deletion
+                  chats[index]['isDeleting'] = true;
                 });
-                // Delete the chat after the animation
                 Future.delayed(Duration(milliseconds: 300), () {
                   deleteChat(contactPhoneNumber);
                 });
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
             ),
           ],
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -155,8 +173,7 @@ class _ChatPageState extends State<ChatPage> {
             },
           ),
           PopupMenuButton<String>(
-            icon:
-                Icon(Icons.more_vert, color: Color.fromARGB(255, 187, 133, 52)),
+            icon: Icon(Icons.more_vert, color: Color.fromARGB(255, 187, 133, 52)),
             onSelected: (value) {
               if (value == 'Settings') {
                 Navigator.push(
@@ -167,7 +184,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 );
               } else if (value == 'Logout') {
-                logout(); // Panggil fungsi logout
+                logout();
               }
             },
             itemBuilder: (BuildContext context) {
@@ -177,7 +194,7 @@ class _ChatPageState extends State<ChatPage> {
                 'Linked devices',
                 'Starred messages',
                 'Settings',
-                'Logout', // Tambahkan opsi Logout
+                'Logout',
               ].map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
@@ -201,20 +218,14 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: chats.length,
                   itemBuilder: (context, index) {
                     final chat = chats[index];
-
-                    // Debugging line to inspect chat data
                     print('Chat: $chat');
                     final unreadCount = chat['total_unread'] is String
                         ? int.tryParse(chat['total_unread']) ?? 0
                         : chat['total_unread'] ?? 0;
-
-                    // Correcting the photo URL path
                     final String photoPath =
                         chat['photo']?.replaceAll('\\', '/') ?? 'default.jpg';
                     final String imageUrl =
                         'http://192.168.2.13:3000/$photoPath';
-
-                    // Check if the chat is being deleted
                     bool isDeleting = chat['isDeleting'] ?? false;
 
                     return AnimatedOpacity(
@@ -302,8 +313,8 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-// Fungsi untuk menangani logout
-  void logout() async {
+  // Fungsi untuk menangani logout
+    void logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token'); // Hapus token
     Navigator.pushReplacement(

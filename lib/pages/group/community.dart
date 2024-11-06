@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,11 +11,12 @@ class Group {
   final String description;
   final String? photo;
 
-  Group(
-      {required this.id,
-      required this.name,
-      required this.description,
-      this.photo});
+  Group({
+    required this.id,
+    required this.name,
+    required this.description,
+    this.photo,
+  });
 
   factory Group.fromJson(Map<String, dynamic> json) {
     return Group(
@@ -49,7 +49,9 @@ class _CommunityPageState extends State<CommunityPage> {
     super.initState();
     fetchGroups();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      fetchGroups();
+      if (mounted) {
+        fetchGroups();
+      }
     });
   }
 
@@ -60,13 +62,23 @@ class _CommunityPageState extends State<CommunityPage> {
 
     if (response.statusCode == 200) {
       final List<dynamic> groupList = json.decode(response.body);
-      setState(() {
-        groups = groupList.map((json) => Group.fromJson(json)).toList();
-      });
+      if (mounted) {
+        setState(() {
+          groups = groupList.map((json) => Group.fromJson(json)).toList();
+        });
+      }
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to load groups')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to load groups')));
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer to prevent memory leaks.
+    super.dispose();
   }
 
   @override
@@ -92,7 +104,8 @@ class _CommunityPageState extends State<CommunityPage> {
       body: groups.isEmpty
           ? Center(
               child:
-                  Text('No groups available', style: TextStyle(fontSize: 18)))
+                  Text('No groups available', style: TextStyle(fontSize: 18)),
+            )
           : ListView.builder(
               itemCount: groups.length,
               itemBuilder: (context, index) {

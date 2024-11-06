@@ -181,8 +181,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                message[
-                                    'created_at'], // Tampilkan timestamp pesan
+                                '${DateTime.parse(message['created_at']).hour}:${DateTime.parse(message['created_at']).minute.toString().padLeft(2, '0')}',
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.white),
                               ),
